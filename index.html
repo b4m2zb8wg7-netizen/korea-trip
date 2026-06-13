@@ -28,6 +28,7 @@
   <!-- View tabs -->
   <nav class="tabs" id="tabs">
     <button class="tab active" data-view="list">Explore</button>
+    <button class="tab" data-view="itinerary">Itinerary</button>
     <button class="tab" data-view="checklist">Booking ✓</button>
     <button class="tab" data-view="map">Map</button>
   </nav>
@@ -71,6 +72,18 @@
       <p class="empty" id="emptyState" hidden>No places match these filters. Try clearing a few.</p>
     </section>
 
+    <!-- Itinerary / day planner view -->
+    <section id="itineraryView" class="view">
+      <p class="view-intro">Pencil activities into days and time slots, and jot notes/reminders. Saved on this device.</p>
+      <div class="trip-controls">
+        <label class="trip-start">Trip start date
+          <input type="date" id="tripStart" />
+        </label>
+        <button class="add-day-btn" id="addDay">➕ Add day</button>
+      </div>
+      <div id="itinerary" class="itinerary"></div>
+    </section>
+
     <!-- Booking checklist view -->
     <section id="checklistView" class="view">
       <p class="view-intro">Everything that needs booking ahead of time. Tick them off as you go — saved on this device.</p>
@@ -88,6 +101,28 @@
     <span id="offlineDot" class="offline-dot" title="offline-ready"></span>
     Works offline · data saved on this device only
   </footer>
+
+  <!-- Plan sheet: assign an activity to a day + time slot, with a note -->
+  <div id="planSheet" class="sheet-backdrop" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="planSheetTitle">
+      <h3 id="planSheetTitle"></h3>
+      <p class="sheet-sub">Which day?</p>
+      <div id="planDays" class="sheet-days"></div>
+      <p class="sheet-sub">When?</p>
+      <div id="planSlots" class="sheet-slots">
+        <button type="button" data-slot="morning">🌅 Morning</button>
+        <button type="button" data-slot="afternoon">☀️ Afternoon</button>
+        <button type="button" data-slot="evening">🌙 Evening</button>
+      </div>
+      <p class="sheet-sub">Note / reminder</p>
+      <textarea id="planNote" rows="2" placeholder="e.g. book the 2pm capsule slot; bring umbrellas"></textarea>
+      <div class="sheet-actions">
+        <button type="button" id="planRemove" class="sheet-remove">Remove</button>
+        <button type="button" id="planCancel" class="sheet-cancel">Cancel</button>
+        <button type="button" id="planSave" class="sheet-save">Save</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Leaflet JS, loaded lazily by app.js when the map tab is first opened -->
   <script src="app.js"></script>

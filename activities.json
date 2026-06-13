@@ -603,6 +603,24 @@
       "lng": null
     },
     {
+      "id": "alpinestars-basecamp-seoul",
+      "name": "Alpinestars Basecamp Seoul (flagship)",
+      "city": "Seoul",
+      "area": "Yongsan / Ichon-dong",
+      "categories": ["motorbike", "shopping"],
+      "weatherProof": true,
+      "indoor": true,
+      "forWhom": ["dad"],
+      "kidsNote": "",
+      "needsBooking": false,
+      "bookingLead": "none",
+      "uniqueToKorea": false,
+      "status": "shortlisted",
+      "notes": "Official Korea flagship - first of Alpinestars' global 'Basecamp' stores. 3-storey building (~655sqm); floors 2-3 are showrooms (2F urban/touring, 3F road-race incl. boots: SMX-6, Supertech R), 1F service. Carries the full road sport/urban/touring range. Address: Ichon-ro 29-gil 8-18, Yongsan-gu (near north end of Hangang Bridge, parking out front). Hours: Tue-Fri 10:30-19:30, Sat & public holidays 09:30-18:00 (lunch 12:00-13:00), CLOSED Sun & Mon. ACTION: message @alpinestars_kr ahead to confirm Superfaster in stock + your size (opening coverage named SMX-6/Supertech R, not Superfaster). Verify address/hours closer to trip. Clusters with Yongsan Electronics Market, War Memorial, National Museum.",
+      "lat": null,
+      "lng": null
+    },
+    {
       "id": "pc-bang-esports",
       "name": "High-end PC bang / e-sports arena",
       "city": "Seoul",

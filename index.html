@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#1b2a4a" />
+  <title>Korea Family Trip Planner</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Leaflet (map view) — loaded from CDN; map needs network, the rest works offline -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>🇰🇷 Korea Family Trip</h1>
+    <p class="subtitle">Seoul &amp; Busan · tap to plan, bookmark &amp; book</p>
+  </header>
+
+  <!-- Rainy-day toggle -->
+  <div class="rainy-bar">
+    <label class="rainy-toggle">
+      <input type="checkbox" id="rainyToggle" />
+      <span class="rainy-text">🌧️ Rainy day today</span>
+      <span class="rainy-hint">show only indoor / weather-proof</span>
+    </label>
+    <p class="season-note" id="seasonNote" hidden></p>
+  </div>
+
+  <!-- View tabs -->
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-view="list">Explore</button>
+    <button class="tab" data-view="checklist">Booking ✓</button>
+    <button class="tab" data-view="map">Map</button>
+  </nav>
+
+  <!-- Filter chips (Explore view only) -->
+  <section class="filters" id="filters">
+    <div class="chip-row" data-group="city">
+      <span class="chip-label">City</span>
+      <button class="chip" data-filter="city" data-value="Seoul">Seoul</button>
+      <button class="chip" data-filter="city" data-value="Busan">Busan</button>
+      <button class="chip" data-filter="city" data-value="Day trip">Day trip</button>
+    </div>
+    <div class="chip-row" data-group="who">
+      <span class="chip-label">For</span>
+      <button class="chip" data-filter="forWhom" data-value="family">Family</button>
+      <button class="chip" data-filter="forWhom" data-value="kids">Kids</button>
+      <button class="chip" data-filter="forWhom" data-value="mum">Mum</button>
+      <button class="chip" data-filter="forWhom" data-value="dad">Dad</button>
+    </div>
+    <div class="chip-row" data-group="status">
+      <span class="chip-label">Plan</span>
+      <button class="chip" data-filter="status" data-value="confirmed">✅ Confirmed</button>
+      <button class="chip" data-filter="status" data-value="shortlisted">📌 Shortlisted</button>
+      <button class="chip" data-filter="status" data-value="idea">💡 Ideas</button>
+    </div>
+    <div class="chip-row" data-group="props">
+      <span class="chip-label">Type</span>
+      <button class="chip" data-filter="weatherProof" data-value="true">☂️ Weather-proof</button>
+      <button class="chip" data-filter="indoor" data-value="true">🏠 Indoor</button>
+      <button class="chip" data-filter="uniqueToKorea" data-value="true">🇰🇷 Only in Korea</button>
+      <button class="chip" data-filter="bookmarked" data-value="true">⭐ Bookmarked</button>
+    </div>
+    <button class="clear-btn" id="clearFilters" hidden>Clear filters</button>
+  </section>
+
+  <main>
+    <!-- Explore / list view -->
+    <section id="listView" class="view active">
+      <p class="result-count" id="resultCount"></p>
+      <div id="cards" class="cards"></div>
+      <p class="empty" id="emptyState" hidden>No places match these filters. Try clearing a few.</p>
+    </section>
+
+    <!-- Booking checklist view -->
+    <section id="checklistView" class="view">
+      <p class="view-intro">Everything that needs booking ahead of time. Tick them off as you go — saved on this device.</p>
+      <div id="checklist" class="checklist"></div>
+    </section>
+
+    <!-- Map view -->
+    <section id="mapView" class="view">
+      <p class="map-note" id="mapNote" hidden></p>
+      <div id="map"></div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <span id="offlineDot" class="offline-dot" title="offline-ready"></span>
+    Works offline · data saved on this device only
+  </footer>
+
+  <!-- Leaflet JS, loaded lazily by app.js when the map tab is first opened -->
+  <script src="app.js"></script>
+</body>
+</html>

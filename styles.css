@@ -79,6 +79,50 @@ body.rainy .app-header { background: linear-gradient(160deg, #16384a 0%, var(--b
 }
 .tab.active { background: var(--surface-2); color: var(--text); border-bottom-color: var(--surface-2); }
 
+/* ---------- Sync bar ---------- */
+.sync-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.sync-state { font-size: 0.8rem; color: var(--muted); }
+.sync-open {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sync-open:hover { border-color: var(--accent); }
+.sync-field { display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
+.sync-field input {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 9px 11px;
+  font-size: 0.9rem;
+}
+.sync-secondary {
+  margin-top: 8px;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 9px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sync-secondary:hover { border-color: var(--accent); }
+
 /* ---------- Filters ---------- */
 .filters {
   background: var(--surface-2);

@@ -50,6 +50,7 @@ function loadSet(key) {
 }
 function saveSet(key, set) {
   localStorage.setItem(key, JSON.stringify([...set]));
+  markChanged();
 }
 
 function loadItinerary() {
@@ -60,6 +61,7 @@ function loadItinerary() {
 }
 function saveItinerary() {
   localStorage.setItem(LS_ITIN, JSON.stringify(itinerary));
+  markChanged();
 }
 // The plan entry for an activity, or null if it isn't scheduled yet.
 function getAssignment(id) { return itinerary.plan[id] || null; }
@@ -90,9 +92,11 @@ async function init() {
   wireRainy();
   wirePlanSheet();
   wireItineraryControls();
+  wireSync();
   renderList();
   renderChecklist();
   renderItinerary();
+  startSyncIfConfigured();
 }
 
 function showSeasonNote(text) {
@@ -536,6 +540,221 @@ function escapeHTML(s) {
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 function escapeAttr(s) { return escapeHTML(s); }
+
+/* ---------- Live sync across phones (optional Cloudflare Worker) ---------- */
+const LS_SYNC_URL = "koreaSyncUrl";     // your Worker base URL
+const LS_SYNC_CODE = "koreaSyncCode";   // the shared trip code (the "password")
+const LS_SYNCED_CODE = "koreaSyncedCode"; // last code this device fully synced
+const LS_VERSION = "koreaUpdatedAt";    // local last-change timestamp (ms)
+const POLL_MS = 6000;                   // how often to check for the other phone's changes
+
+let syncUrl = localStorage.getItem(LS_SYNC_URL) || "";
+let syncCode = localStorage.getItem(LS_SYNC_CODE) || "";
+let syncEnabled = false;
+let applyingRemote = false;             // guard so applying a pull doesn't re-trigger a push
+let localVersion = Number(localStorage.getItem(LS_VERSION) || 0);
+let pushTimer = null;
+let pollTimer = null;
+
+// Called by saveSet()/saveItinerary() after every local change.
+function markChanged() {
+  if (applyingRemote) return;
+  localVersion = Date.now();
+  localStorage.setItem(LS_VERSION, String(localVersion));
+  schedulePush();
+}
+
+function endpoint() {
+  return syncUrl.replace(/\/+$/, "") + "/trip/" + encodeURIComponent(syncCode);
+}
+function snapshot() {
+  return { bookmarks: [...bookmarks], checked: [...checked], itinerary, updatedAt: localVersion };
+}
+
+function schedulePush() {
+  if (!syncEnabled) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(pushState, 1200); // debounce rapid edits
+}
+
+async function pushState() {
+  if (!syncEnabled) return;
+  try {
+    setSyncStatus("syncing");
+    await fetch(endpoint(), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(snapshot())
+    });
+    setSyncStatus("ok");
+  } catch { setSyncStatus("offline"); }
+}
+
+async function pullState() {
+  if (!syncEnabled) return;
+  try {
+    const res = await fetch(endpoint(), { cache: "no-store" });
+    const remote = await res.json();
+    if (remote && typeof remote.updatedAt === "number" && remote.updatedAt > localVersion) {
+      applyRemote(remote);
+    }
+    setSyncStatus("ok");
+  } catch { setSyncStatus("offline"); }
+}
+
+function applyRemote(remote) {
+  applyingRemote = true;
+  bookmarks = new Set(remote.bookmarks || []);
+  checked = new Set(remote.checked || []);
+  const it = remote.itinerary || {};
+  itinerary = { startDate: it.startDate || "", days: it.days || [], plan: it.plan || {} };
+  localStorage.setItem(LS_BOOKMARKS, JSON.stringify([...bookmarks]));
+  localStorage.setItem(LS_CHECKED, JSON.stringify([...checked]));
+  localStorage.setItem(LS_ITIN, JSON.stringify(itinerary));
+  localVersion = remote.updatedAt;
+  localStorage.setItem(LS_VERSION, String(localVersion));
+  applyingRemote = false;
+  renderList();
+  renderChecklist();
+  renderItinerary();
+}
+
+function startPolling() {
+  stopPolling();
+  pollTimer = setInterval(() => { if (!document.hidden) pullState(); }, POLL_MS);
+}
+function stopPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
+
+async function connectSync() {
+  if (!syncUrl || !syncCode) return;
+  syncEnabled = true;
+  localStorage.setItem(LS_SYNC_URL, syncUrl);
+  localStorage.setItem(LS_SYNC_CODE, syncCode);
+  setSyncStatus("syncing");
+
+  const knownCode = localStorage.getItem(LS_SYNCED_CODE) === syncCode;
+  let remote = null;
+  try { remote = await (await fetch(endpoint(), { cache: "no-store" })).json(); } catch {}
+
+  if (remote && typeof remote.updatedAt === "number") {
+    // Adopt the shared plan when joining, unless this device has genuine newer offline edits.
+    if (knownCode && localVersion > remote.updatedAt) await pushState();
+    else applyRemote(remote);
+  } else {
+    await pushState(); // empty locker — seed it with our plan
+  }
+
+  localStorage.setItem(LS_SYNCED_CODE, syncCode);
+  startPolling();
+  updateSyncUI();
+  setSyncStatus("ok");
+}
+
+function disconnectSync() {
+  syncEnabled = false;
+  stopPolling();
+  syncCode = "";
+  localStorage.removeItem(LS_SYNC_CODE); // keep the Worker URL; forget the shared code
+  updateSyncUI();
+  setSyncStatus("idle");
+}
+
+function startSyncIfConfigured() {
+  if (syncUrl && syncCode) connectSync();
+  else updateSyncUI();
+}
+
+// Catch up the moment the app comes back to the foreground or back online.
+document.addEventListener("visibilitychange", () => { if (!document.hidden) pullState(); });
+window.addEventListener("online", pullState);
+
+/* ----- Sync panel UI ----- */
+function genCode() {
+  const chars = "abcdefghijkmnpqrstuvwxyz23456789"; // unambiguous chars
+  const a = new Uint8Array(10);
+  crypto.getRandomValues(a);
+  return "korea-" + [...a].map(x => chars[x % chars.length]).join("");
+}
+
+function setSyncStatus(state) {
+  const el = document.getElementById("syncState");
+  if (!el) return;
+  const labels = {
+    idle: "🔌 Not synced",
+    syncing: "🔄 Syncing…",
+    ok: "🟢 Synced" + (syncCode ? " · " + syncCode : ""),
+    offline: "🟠 Offline — will retry"
+  };
+  el.textContent = labels[state] || labels.idle;
+}
+
+function shareString() {
+  try { return btoa(JSON.stringify({ url: syncUrl, code: syncCode })); } catch { return ""; }
+}
+function parseShare(str) {
+  try { const o = JSON.parse(atob(str.trim())); if (o && o.url && o.code) return o; } catch {}
+  return null;
+}
+
+function updateSyncUI() {
+  const open = document.getElementById("syncOpen");
+  if (open) open.textContent = syncEnabled ? "Manage" : "Set up sync";
+  setSyncStatus(syncEnabled ? "ok" : "idle");
+
+  const urlInput = document.getElementById("syncUrlInput");
+  const codeInput = document.getElementById("syncCodeInput");
+  if (urlInput) urlInput.value = syncUrl;
+  if (codeInput) codeInput.value = syncCode;
+
+  const out = document.getElementById("syncShareOut");
+  const outWrap = document.getElementById("syncShareWrap");
+  if (out && outWrap) {
+    if (syncEnabled) { out.value = shareString(); outWrap.hidden = false; }
+    else outWrap.hidden = true;
+  }
+  const disc = document.getElementById("syncDisconnect");
+  if (disc) disc.style.display = syncEnabled ? "" : "none";
+}
+
+function openSyncSheet() { updateSyncUI(); document.getElementById("syncSheet").hidden = false; }
+function closeSyncSheet() { document.getElementById("syncSheet").hidden = true; }
+
+function wireSync() {
+  document.getElementById("syncOpen").addEventListener("click", openSyncSheet);
+  document.getElementById("syncCancel").addEventListener("click", closeSyncSheet);
+  document.getElementById("syncSheet").addEventListener("click", e => {
+    if (e.target.id === "syncSheet") closeSyncSheet();
+  });
+
+  document.getElementById("syncGenerate").addEventListener("click", () => {
+    document.getElementById("syncCodeInput").value = genCode();
+  });
+
+  document.getElementById("syncUseShare").addEventListener("click", () => {
+    const parsed = parseShare(document.getElementById("syncShareIn").value);
+    if (!parsed) { alert("That share code didn't work — copy it again from the other phone."); return; }
+    document.getElementById("syncUrlInput").value = parsed.url;
+    document.getElementById("syncCodeInput").value = parsed.code;
+  });
+
+  document.getElementById("syncConnect").addEventListener("click", async () => {
+    const u = document.getElementById("syncUrlInput").value.trim();
+    const c = document.getElementById("syncCodeInput").value.trim();
+    if (!u) { alert("Paste your Cloudflare Worker URL first."); return; }
+    if (!/^[A-Za-z0-9_-]{6,64}$/.test(c)) { alert("Enter a trip code (6+ letters/numbers), or tap Generate."); return; }
+    syncUrl = u; syncCode = c;
+    await connectSync();
+    closeSyncSheet();
+  });
+
+  document.getElementById("syncDisconnect").addEventListener("click", disconnectSync);
+
+  document.getElementById("syncCopyShare").addEventListener("click", async () => {
+    const btn = document.getElementById("syncCopyShare");
+    try { await navigator.clipboard.writeText(document.getElementById("syncShareOut").value); btn.textContent = "Copied!"; setTimeout(() => btn.textContent = "Copy", 1500); }
+    catch { document.getElementById("syncShareOut").select(); }
+  });
+}
 
 /* ---------- Service worker (offline) ---------- */
 if ("serviceWorker" in navigator) {

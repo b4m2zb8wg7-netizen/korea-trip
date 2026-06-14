@@ -33,6 +33,12 @@
     <button class="tab" data-view="map">Map</button>
   </nav>
 
+  <!-- Live-sync status bar -->
+  <div class="sync-bar">
+    <span class="sync-state" id="syncState">🔌 Not synced</span>
+    <button class="sync-open" id="syncOpen">Set up sync</button>
+  </div>
+
   <!-- Filter chips (Explore view only) -->
   <section class="filters" id="filters">
     <div class="chip-row" data-group="city">
@@ -101,6 +107,39 @@
     <span id="offlineDot" class="offline-dot" title="offline-ready"></span>
     Works offline · data saved on this device only
   </footer>
+
+  <!-- Sync sheet: set up / manage live sync across phones -->
+  <div id="syncSheet" class="sheet-backdrop" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="syncSheetTitle">
+      <h3 id="syncSheetTitle">Sync across phones</h3>
+      <p class="sheet-sub">Use the same trip code on both phones to share your plan live. Treat the code like a password.</p>
+
+      <p class="sheet-sub">Joining from the other phone?</p>
+      <textarea id="syncShareIn" rows="2" placeholder="Paste the share code from the first phone here"></textarea>
+      <button type="button" id="syncUseShare" class="sync-secondary">Use share code</button>
+
+      <p class="sheet-sub">— or set up manually —</p>
+      <label class="sync-field">Cloudflare Worker URL
+        <input id="syncUrlInput" type="url" placeholder="https://korea-trip-sync.you.workers.dev" />
+      </label>
+      <label class="sync-field">Trip code
+        <input id="syncCodeInput" type="text" placeholder="korea-xxxxxxxxxx" />
+      </label>
+      <button type="button" id="syncGenerate" class="sync-secondary">Generate a code</button>
+
+      <div id="syncShareWrap" hidden>
+        <p class="sheet-sub">Share this with the other phone</p>
+        <textarea id="syncShareOut" rows="2" readonly></textarea>
+        <button type="button" id="syncCopyShare" class="sync-secondary">Copy</button>
+      </div>
+
+      <div class="sheet-actions">
+        <button type="button" id="syncDisconnect" class="sheet-remove">Disconnect</button>
+        <button type="button" id="syncCancel" class="sheet-cancel">Close</button>
+        <button type="button" id="syncConnect" class="sheet-save">Connect</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Plan sheet: assign an activity to a day + time slot, with a note -->
   <div id="planSheet" class="sheet-backdrop" hidden>

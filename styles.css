@@ -479,7 +479,7 @@ body.rainy .app-header { background: linear-gradient(160deg, #16384a 0%, var(--b
 .offline-dot.ready { background: var(--good); }
 
 /* ---------- Weather strip ---------- */
-.weather-strip { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.weather-strip { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--line); }
 .weather-strip[hidden] { display: none; }
 .weather-city { font-size: 0.85rem; }
 .weather-city small { color: var(--muted); }

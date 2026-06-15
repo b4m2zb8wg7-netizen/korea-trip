@@ -12,6 +12,104 @@ let itinerary = loadItinerary();
 let map = null;                // Leaflet map, created lazily
 let mapMarkersDrawn = false;
 
+// Accommodation bookings — hardcoded reference data, no localStorage needed.
+const STAYS = [
+  { name: "ENA Suite Hotel Namdaemun", city: "Seoul", area: "Namdaemun",
+    checkIn: "2025-06-27", checkOut: "2025-07-02", lat: 37.5601, lng: 126.9755,
+    note: "Luggage stays here while in Busan 30 Jun–2 Jul." },
+  { name: "Ocean The Point Hotel Busan", city: "Busan", area: "",
+    checkIn: "2025-06-30", checkOut: "2025-07-02", lat: 35.1587, lng: 129.1604,
+    note: "Busan side-trip — main bags left at ENA." },
+  { name: "Gudo Collective Gangnam", city: "Seoul", area: "Gangnam",
+    checkIn: "2025-07-02", checkOut: "2025-07-09", lat: 37.4979, lng: 127.0276, note: "" },
+  { name: "Hotel The Designers Seoul Station", city: "Seoul", area: "Seoul Station",
+    checkIn: "2025-07-09", checkOut: "2025-07-15", lat: 37.5556, lng: 126.9706,
+    note: "Raymond + Jacob fly home 9 Jul; Denise + Celine stay to 15 Jul." }
+];
+
+// Phrase book data — grouped by situation.
+const PHRASES = [
+  { group: "Essentials", icon: "💬", items: [
+    { en: "Hello", rom: "an-nyeong-ha-se-yo", ko: "안녕하세요" },
+    { en: "Thank you", rom: "gam-sa-ham-ni-da", ko: "감사합니다" },
+    { en: "Yes / No", rom: "ne / a-ni-yo", ko: "네 / 아니요" },
+    { en: "Excuse me (to get attention)", rom: "jeo-gi-yo", ko: "저기요" },
+    { en: "Sorry", rom: "joe-song-ham-ni-da", ko: "죄송합니다" },
+    { en: "Do you speak English?", rom: "yeong-eo-ha-se-yo?", ko: "영어하세요?" },
+    { en: "I don't understand", rom: "mo-reu-ge-sseo-yo", ko: "모르겠어요" },
+    { en: "How much is it?", rom: "eol-ma-ye-yo?", ko: "얼마예요?" }
+  ]},
+  { group: "Restaurant", icon: "🍜", items: [
+    { en: "A table for four, please", rom: "ne-myeong-i-yo", ko: "네 명이요" },
+    { en: "Menu, please", rom: "me-nyu ju-se-yo", ko: "메뉴 주세요" },
+    { en: "This one, please (pointing)", rom: "i-geo ju-se-yo", ko: "이거 주세요" },
+    { en: "Not spicy, please", rom: "an-mae-un-geo-ro ju-se-yo", ko: "안 매운 걸로 주세요" },
+    { en: "Is this spicy?", rom: "i-geo mae-wo-yo?", ko: "이거 매워요?" },
+    { en: "Water, please", rom: "mul ju-se-yo", ko: "물 주세요" },
+    { en: "Fork, please (for kids)", rom: "po-keu ju-se-yo", ko: "포크 주세요" },
+    { en: "Delicious!", rom: "ma-shi-sseo-yo", ko: "맛있어요" },
+    { en: "Bill, please", rom: "gye-san-hae ju-se-yo", ko: "계산해 주세요" }
+  ]},
+  { group: "Transport", icon: "🚇", items: [
+    { en: "Where is the subway station?", rom: "ji-ha-cheol-yeok eo-di-ye-yo?", ko: "지하철역 어디예요?" },
+    { en: "How do I get to ___?", rom: "___ eo-tteo-ke ga-yo?", ko: "___ 어떻게 가요?" },
+    { en: "One ticket, please", rom: "han-jang ju-se-yo", ko: "한 장 주세요" },
+    { en: "Please stop here", rom: "yeo-gi-se se-wo ju-se-yo", ko: "여기서 세워 주세요" },
+    { en: "Taxi", rom: "taek-si", ko: "택시" },
+    { en: "Is this the train to Busan?", rom: "i-geo bu-san ga-yo?", ko: "이거 부산 가요?" }
+  ]},
+  { group: "Shopping", icon: "🛍️", items: [
+    { en: "Can I try this on?", rom: "i-beo-bwa-do dwae-yo?", ko: "입어봐도 돼요?" },
+    { en: "Bigger / smaller size?", rom: "deo keun / jak-eun sa-i-jeu i-sseo-yo?", ko: "더 큰 / 작은 사이즈 있어요?" },
+    { en: "Can I pay by card?", rom: "ka-deu dwae-yo?", ko: "카드 돼요?" },
+    { en: "Just looking, thanks", rom: "geu-nyang bo-neun geo-ye-yo", ko: "그냥 보는 거예요" },
+    { en: "Too expensive", rom: "neo-mu bi-ssa-yo", ko: "너무 비싸요" }
+  ]},
+  { group: "Emergency & Kids", icon: "🆘", items: [
+    { en: "Help!", rom: "do-wa-ju-se-yo", ko: "도와주세요" },
+    { en: "Please call the police", rom: "gyeong-chal bul-leo ju-se-yo", ko: "경찰 불러 주세요" },
+    { en: "I need a doctor", rom: "ui-sa-ga pi-ryo-hae-yo", ko: "의사가 필요해요" },
+    { en: "My child is lost", rom: "a-i-reul i-reo-beo-ryeo-sseo-yo", ko: "아이를 잃어버렸어요" },
+    { en: "Where is the toilet?", rom: "hwa-jang-sil eo-di-ye-yo?", ko: "화장실 어디예요?" },
+    { en: "Where is the pharmacy?", rom: "yak-guk eo-di-ye-yo?", ko: "약국 어디예요?" }
+  ]}
+];
+
+// Transport reference data — static, works offline.
+const TRANSPORT = [
+  { title: "Seoul ↔ Busan (KTX)", icon: "🚄", lines: [
+    "Fastest train: ~2h 15m, Seoul Station → Busan Station.",
+    "Cost: ~₩60,000 adult one-way (kids 4–12 ~50% off, under 4 free on lap).",
+    "Book on the Korail app or at the station — reserve a few days ahead in peak season. Window seats on the left going south get coast views near Busan.",
+    "Cheaper/slower option: ITX or Mugunghwa trains cost less but take 5h+."
+  ]},
+  { title: "Around Seoul", icon: "🚇", lines: [
+    "Subway is the easiest way around — clean, signed in English, very kid-friendly.",
+    "Get a T-money card (buy + top up at any convenience store or station machine). Tap in and out.",
+    "Single rides ~₩1,400; children's T-money is discounted. Buses also accept T-money.",
+    "Use Naver Map or KakaoMetro for routes — Google Maps directions are limited in Korea.",
+    "Avoid rush hour (8–9 am, 6–7 pm) with the kids if you can."
+  ]},
+  { title: "Around Busan", icon: "🚈", lines: [
+    "Busan has its own subway (4 lines) — your T-money card works here too.",
+    "Single ride ~₩1,500. Buses cover beaches and hills the subway misses.",
+    "Haeundae & Gwangalli beaches are on or near Line 2.",
+    "The driverless Gimhae light rail links the airport to the subway."
+  ]},
+  { title: "Airport connections", icon: "✈️", lines: [
+    "Incheon (ICN) → Seoul: AREX express ~43 min to Seoul Station, or all-stop ~58 min (cheaper). Airport limousine buses stop near major hotels.",
+    "Gimpo (GMP) is closer to central Seoul and is on the subway.",
+    "Gimhae (PUS) → Busan: Gimhae light rail to Sasang, then subway; or limousine bus / taxi (~30–40 min to city centre).",
+    "Buy a T-money card at the airport convenience store before leaving — saves queuing later."
+  ]}
+];
+
+// Weather city coordinates for Open-Meteo.
+const WEATHER_CITIES = [
+  { name: "Seoul", lat: 37.5665, lng: 126.9780 },
+  { name: "Busan", lat: 35.1796, lng: 129.0756 }
+];
+
 // Time slots used by the day planner.
 const SLOTS = [
   { key: "morning", label: "🌅 Morning", short: "AM" },
@@ -87,6 +185,7 @@ async function init() {
     return;
   }
   if (!itinerary.days.length) { addDay(false); } // start with one empty day
+  if (!itinerary.startDate) { itinerary.startDate = "2025-06-27"; saveItinerary(); }
   wireTabs();
   wireFilters();
   wireRainy();
@@ -96,6 +195,10 @@ async function init() {
   renderList();
   renderChecklist();
   renderItinerary();
+  renderStaysSummary();
+  renderPhrases();
+  renderTransport();
+  loadWeather();
   startSyncIfConfigured();
 }
 
@@ -292,6 +395,10 @@ function renderItinerary() {
 
   wrap.innerHTML = itinerary.days.map((day, i) => {
     const dateLbl = dayDateLabel(i);
+    const nightStays = staysOnNight(dayDate(i));
+    const stayBadge = nightStays.length
+      ? `<div class="day-stay">🏨 ${nightStays.map(s => escapeHTML(s.name)).join(" + ")}</div>`
+      : "";
     const slots = SLOTS.map(slot => {
       const items = activities.filter(a => {
         const p = itinerary.plan[a.id];
@@ -323,6 +430,7 @@ function renderItinerary() {
           <h3>Day ${i + 1}${dateLbl ? ` <span class="day-date">${dateLbl}</span>` : ""}</h3>
           <button class="day-remove" data-removeday="${escapeAttr(day.id)}" aria-label="Remove day ${i + 1}">🗑️</button>
         </div>
+        ${stayBadge}
         <input class="day-note" data-daynote="${escapeAttr(day.id)}" value="${escapeAttr(day.note || "")}"
                placeholder="Day note / reminder (e.g. hotel checkout 11am)" />
         ${slots}
@@ -456,6 +564,12 @@ function drawMarkers() {
     );
     plotted++;
   });
+  STAYS.forEach(s => {
+    if (typeof s.lat !== "number" || typeof s.lng !== "number") return;
+    L.marker([s.lat, s.lng]).addTo(map).bindPopup(
+      `<div class="map-popup"><b>🏨 ${escapeHTML(s.name)}</b><br><small>${escapeHTML(s.city)}${s.area ? " · " + escapeHTML(s.area) : ""} · stay</small></div>`
+    );
+  });
   mapMarkersDrawn = true;
   // Some entries have no coordinates yet — let the user know rather than silently hiding them.
   const missing = activities.length - plotted;
@@ -532,6 +646,118 @@ function wireRainy() {
     document.body.classList.toggle("rainy", t.checked);
     renderList();
   });
+}
+
+/* ---------- Phrase book ---------- */
+function renderPhrases() {
+  const wrap = document.getElementById("phraseGroups");
+  if (!wrap) return;
+  wrap.innerHTML = PHRASES.map((g, i) => `
+    <details class="phrase-group" ${i === 0 ? "open" : ""}>
+      <summary>${g.icon} ${escapeHTML(g.group)} <span class="phrase-count">${g.items.length}</span></summary>
+      <div class="phrase-list">
+        ${g.items.map(p => `
+          <div class="phrase">
+            <span class="phrase-en">${escapeHTML(p.en)}</span>
+            <span class="phrase-ko">${escapeHTML(p.ko)}</span>
+            <span class="phrase-rom">(${escapeHTML(p.rom)})</span>
+          </div>`).join("")}
+      </div>
+    </details>`).join("");
+}
+
+/* ---------- Transport planner ---------- */
+function renderTransport() {
+  const wrap = document.getElementById("transportInfo");
+  if (!wrap) return;
+  wrap.innerHTML = TRANSPORT.map(t => `
+    <div class="transport-card">
+      <h3>${t.icon} ${escapeHTML(t.title)}</h3>
+      <ul>${t.lines.map(l => `<li>${escapeHTML(l)}</li>`).join("")}</ul>
+    </div>`).join("");
+}
+
+/* ---------- Weather widget ---------- */
+function weatherInfo(code) {
+  if (code === 0) return { icon: "☀️", label: "Clear" };
+  if (code <= 3) return { icon: "⛅", label: "Cloudy" };
+  if (code === 45 || code === 48) return { icon: "🌫️", label: "Fog" };
+  if (code >= 51 && code <= 67) return { icon: "🌧️", label: "Rain", rain: true };
+  if (code >= 71 && code <= 77) return { icon: "❄️", label: "Snow" };
+  if (code >= 80 && code <= 82) return { icon: "🌦️", label: "Showers", rain: true };
+  if (code >= 95) return { icon: "⛈️", label: "Storm", rain: true };
+  return { icon: "🌡️", label: "—" };
+}
+
+async function loadWeather() {
+  const strip = document.getElementById("weatherStrip");
+  if (!strip || !navigator.onLine) return;
+  try {
+    const results = await Promise.all(WEATHER_CITIES.map(async c => {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lng}` +
+                  `&current=temperature_2m,weathercode,precipitation&timezone=Asia%2FSeoul`;
+      const res = await fetch(url, { cache: "no-store" });
+      const data = await res.json();
+      const cur = data.current || {};
+      return { name: c.name, temp: Math.round(cur.temperature_2m), info: weatherInfo(cur.weathercode) };
+    }));
+
+    strip.innerHTML = results.map(r =>
+      `<span class="weather-city"><b>${escapeHTML(r.name)}</b> ${r.info.icon} ${r.temp}°C <small>${escapeHTML(r.info.label)}</small></span>`
+    ).join("");
+
+    const raining = results.some(r => r.info.rain);
+    if (raining && !rainyOn()) {
+      strip.innerHTML += `<button class="weather-rainy-cta" id="weatherRainyCta">🌧️ Rain about — show rainy-day picks?</button>`;
+      document.getElementById("weatherRainyCta").addEventListener("click", () => {
+        const t = document.getElementById("rainyToggle");
+        t.checked = true;
+        t.dispatchEvent(new Event("change"));
+      });
+    }
+    strip.hidden = false;
+  } catch {
+    strip.hidden = true;
+  }
+}
+
+/* ---------- Accommodation helpers ---------- */
+function parseYMD(str) {
+  const [y, m, d] = (str || "").split("-").map(Number);
+  return (y && m && d) ? new Date(y, m - 1, d) : null;
+}
+
+function dayDate(index) {
+  const start = parseYMD(itinerary.startDate);
+  if (!start) return null;
+  return new Date(start.getFullYear(), start.getMonth(), start.getDate() + index);
+}
+
+function staysOnNight(date) {
+  if (!date) return [];
+  return STAYS.filter(s => {
+    const ci = parseYMD(s.checkIn), co = parseYMD(s.checkOut);
+    return ci && co && date >= ci && date < co;
+  });
+}
+
+function renderStaysSummary() {
+  const wrap = document.getElementById("staysSummary");
+  if (!wrap) return;
+  const fmt = ymd => {
+    const d = parseYMD(ymd);
+    return d ? d.toLocaleDateString(undefined, { day: "numeric", month: "short" }) : ymd;
+  };
+  wrap.innerHTML = `<h3 class="stays-title">🏨 Where we're staying</h3>` +
+    STAYS.map(s => `
+      <div class="stay-row">
+        <div class="stay-main">
+          <span class="stay-name">${escapeHTML(s.name)}</span>
+          <span class="stay-city">${escapeHTML(s.city)}${s.area ? " · " + escapeHTML(s.area) : ""}</span>
+          ${s.note ? `<span class="stay-note">📝 ${escapeHTML(s.note)}</span>` : ""}
+        </div>
+        <span class="stay-dates">${fmt(s.checkIn)}–${fmt(s.checkOut)}</span>
+      </div>`).join("");
 }
 
 /* ---------- Tiny HTML-escaping helpers ---------- */
@@ -667,6 +893,7 @@ function startSyncIfConfigured() {
 // Catch up the moment the app comes back to the foreground or back online.
 document.addEventListener("visibilitychange", () => { if (!document.hidden) pullState(); });
 window.addEventListener("online", pullState);
+window.addEventListener("online", loadWeather);
 
 /* ----- Sync panel UI ----- */
 function genCode() {

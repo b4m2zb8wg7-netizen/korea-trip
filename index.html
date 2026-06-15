@@ -31,6 +31,8 @@
     <button class="tab" data-view="itinerary">Itinerary</button>
     <button class="tab" data-view="checklist">Booking ✓</button>
     <button class="tab" data-view="map">Map</button>
+    <button class="tab" data-view="phrases">Phrases</button>
+    <button class="tab" data-view="transport">Transport</button>
   </nav>
 
   <!-- Live-sync status bar -->
@@ -73,6 +75,7 @@
   <main>
     <!-- Explore / list view -->
     <section id="listView" class="view active">
+      <div id="weatherStrip" class="weather-strip" hidden></div>
       <p class="result-count" id="resultCount"></p>
       <div id="cards" class="cards"></div>
       <p class="empty" id="emptyState" hidden>No places match these filters. Try clearing a few.</p>
@@ -81,6 +84,7 @@
     <!-- Itinerary / day planner view -->
     <section id="itineraryView" class="view">
       <p class="view-intro">Pencil activities into days and time slots, and jot notes/reminders. Saved on this device.</p>
+      <div id="staysSummary" class="stays-summary"></div>
       <div class="trip-controls">
         <label class="trip-start">Trip start date
           <input type="date" id="tripStart" />
@@ -100,6 +104,18 @@
     <section id="mapView" class="view">
       <p class="map-note" id="mapNote" hidden></p>
       <div id="map"></div>
+    </section>
+
+    <!-- Phrase book view -->
+    <section id="phrasesView" class="view">
+      <p class="view-intro">Handy Korean for the family — tap a group to expand. Works offline. Pronunciation in (brackets).</p>
+      <div id="phraseGroups" class="phrase-groups"></div>
+    </section>
+
+    <!-- Transport planner view -->
+    <section id="transportView" class="view">
+      <p class="view-intro">Getting around — all offline. Prices approximate (2025).</p>
+      <div id="transportInfo" class="transport-info"></div>
     </section>
   </main>
 

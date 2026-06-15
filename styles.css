@@ -478,6 +478,43 @@ body.rainy .app-header { background: linear-gradient(160deg, #16384a 0%, var(--b
 }
 .offline-dot.ready { background: var(--good); }
 
+/* ---------- Weather strip ---------- */
+.weather-strip { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.weather-strip[hidden] { display: none; }
+.weather-city { font-size: 0.85rem; }
+.weather-city small { color: var(--muted); }
+.weather-rainy-cta { margin-left: auto; background: rgba(95,211,224,0.14); color: var(--rain); border: 1px solid var(--rain); border-radius: 999px; padding: 6px 12px; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
+
+/* ---------- Accommodation summary ---------- */
+.stays-summary { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px; }
+.stays-title { margin: 0 0 10px; font-size: 1rem; }
+.stay-row { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); align-items: flex-start; }
+.stay-main { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.stay-name { font-weight: 600; font-size: 0.9rem; }
+.stay-city { color: var(--accent); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.stay-note { color: var(--accent-2); font-size: 0.78rem; }
+.stay-dates { color: var(--muted); font-size: 0.8rem; white-space: nowrap; }
+.day-stay { font-size: 0.78rem; color: var(--good); background: rgba(78,201,163,0.12); border-radius: 8px; padding: 4px 9px; margin: 6px 0 2px; display: inline-block; }
+
+/* ---------- Phrase book ---------- */
+.phrase-groups { display: grid; gap: 10px; }
+.phrase-group { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.phrase-group summary { padding: 13px 14px; font-weight: 600; cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; }
+.phrase-group summary::-webkit-details-marker { display: none; }
+.phrase-count { margin-left: auto; font-size: 0.72rem; color: var(--muted); background: var(--surface-2); border-radius: 999px; padding: 2px 8px; }
+.phrase-list { padding: 0 14px 12px; display: grid; gap: 10px; }
+.phrase { display: grid; gap: 2px; padding: 9px 11px; background: var(--surface-2); border-radius: 10px; }
+.phrase-en { font-weight: 600; font-size: 0.9rem; }
+.phrase-ko { font-size: 1.05rem; color: var(--text); }
+.phrase-rom { font-size: 0.8rem; color: var(--accent-2); font-style: italic; }
+
+/* ---------- Transport planner ---------- */
+.transport-info { display: grid; gap: 12px; }
+.transport-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
+.transport-card h3 { margin: 0 0 8px; font-size: 1.02rem; }
+.transport-card ul { margin: 0; padding-left: 18px; }
+.transport-card li { font-size: 0.86rem; line-height: 1.5; color: var(--text); margin-bottom: 6px; }
+
 @media (min-width: 600px) {
   .cards { grid-template-columns: 1fr 1fr; }
 }

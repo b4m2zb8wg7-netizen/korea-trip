@@ -27,6 +27,24 @@
 
   "activities": [
     {
+      "id": "teenieping-world-pangyo",
+      "name": "Teenieping World (티니핑 월드)",
+      "city": "Seoul",
+      "area": "Pangyo (30min south by Sinbundang Line)",
+      "categories": ["character", "kids-play", "kids"],
+      "weatherProof": true,
+      "indoor": true,
+      "forWhom": ["kids", "family"],
+      "kidsNote": "Perfect for the 5.5yo — designed for preschool/early elementary. Live performance is the main event, not just the exhibition. Face will light up on entry.",
+      "needsBooking": true,
+      "bookingLead": "few-days",
+      "uniqueToKorea": true,
+      "status": "confirmed",
+      "notes": "Indoor character theme space based on Catch! Teenieping animation. Everything colourful, cute, immersive — parents report kids are speechless on entry. LIVE PERFORMANCE is the anchor; check the show schedule before visiting and plan arrival around it (gets crowded before shows). Location: Pangyo Farmers Mall P2 Basement Floor, 18 Cheompang-ro, Sujeong-gu, Seongnam-si. ~30min from central Seoul on Sinbundang Line. Verify current hours and show times on official site before going. DAY COMBO: pair with Namsan Tower in the afternoon (KPop Demon Hunters filming location — the Saja Boys final show scene).",
+      "lat": null,
+      "lng": null
+    },
+    {
       "id": "lotte-world-seoul",
       "name": "Lotte World",
       "city": "Seoul",

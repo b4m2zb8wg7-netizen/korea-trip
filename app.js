@@ -986,7 +986,7 @@ function wireSync() {
 /* ---------- Service worker (offline) ---------- */
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js")
+    navigator.serviceWorker.register("sw.js", { updateViaCache: "none" })
       .then(() => { document.getElementById("offlineDot").classList.add("ready"); })
       .catch(() => { /* offline just won't be available; app still works online */ });
   });

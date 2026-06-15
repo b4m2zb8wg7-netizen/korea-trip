@@ -568,9 +568,20 @@ function drawMarkers() {
     );
     plotted++;
   });
+  const redIcon = L.divIcon({
+    className: "",
+    html: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="36" viewBox="0 0 24 36">
+      <path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24S24 21 24 12C24 5.4 18.6 0 12 0z" fill="#e53e3e" stroke="#fff" stroke-width="1.5"/>
+      <circle cx="12" cy="12" r="4" fill="#fff"/>
+    </svg>`,
+    iconSize: [24, 36],
+    iconAnchor: [12, 36],
+    popupAnchor: [0, -36]
+  });
+
   STAYS.forEach(s => {
     if (typeof s.lat !== "number" || typeof s.lng !== "number") return;
-    L.marker([s.lat, s.lng]).addTo(map).bindPopup(
+    L.marker([s.lat, s.lng], { icon: redIcon }).addTo(map).bindPopup(
       `<div class="map-popup"><b>🏨 ${escapeHTML(s.name)}</b><br><small>${s.address ? escapeHTML(s.address) : escapeHTML(s.city)}</small></div>`
     );
   });

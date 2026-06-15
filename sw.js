@@ -1,7 +1,7 @@
 /* Service worker — makes the app work offline.
    Bump CACHE_VERSION whenever you change the files below so users get the update. */
 
-const CACHE_VERSION = "korea-trip-v6";
+const CACHE_VERSION = "korea-trip-v7";
 const APP_SHELL = [
   "./",
   "./index.html",

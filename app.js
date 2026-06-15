@@ -570,13 +570,10 @@ function drawMarkers() {
   });
   const redIcon = L.divIcon({
     className: "",
-    html: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="36" viewBox="0 0 24 36">
-      <path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24S24 21 24 12C24 5.4 18.6 0 12 0z" fill="#e53e3e" stroke="#fff" stroke-width="1.5"/>
-      <circle cx="12" cy="12" r="4" fill="#fff"/>
-    </svg>`,
-    iconSize: [24, 36],
-    iconAnchor: [12, 36],
-    popupAnchor: [0, -36]
+    html: '<div style="width:16px;height:16px;border-radius:50%;background:#e53e3e;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.5)"></div>',
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+    popupAnchor: [0, -10]
   });
 
   STAYS.forEach(s => {

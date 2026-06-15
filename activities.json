@@ -41,8 +41,8 @@
       "uniqueToKorea": true,
       "status": "confirmed",
       "notes": "Indoor character theme space based on Catch! Teenieping animation. Everything colourful, cute, immersive — parents report kids are speechless on entry. LIVE PERFORMANCE is the anchor; check the show schedule before visiting and plan arrival around it (gets crowded before shows). Location: Pangyo Farmers Mall P2 Basement Floor, 18 Cheompang-ro, Sujeong-gu, Seongnam-si. ~30min from central Seoul on Sinbundang Line. Verify current hours and show times on official site before going. DAY COMBO: pair with Namsan Tower in the afternoon (KPop Demon Hunters filming location — the Saja Boys final show scene).",
-      "lat": null,
-      "lng": null
+      "lat": 37.3943,
+      "lng": 127.1110
     },
     {
       "id": "lotte-world-seoul",
@@ -203,8 +203,8 @@
       "uniqueToKorea": true,
       "status": "shortlisted",
       "notes": "Uniquely Korea-dense. Check welfare/reviews before picking one.",
-      "lat": null,
-      "lng": null
+      "lat": 37.5574,
+      "lng": 126.9239
     },
     {
       "id": "character-flagships-seoul",
@@ -221,8 +221,8 @@
       "uniqueToKorea": true,
       "status": "idea",
       "notes": "Korea's character culture is its own thing.",
-      "lat": null,
-      "lng": null
+      "lat": 37.5642,
+      "lng": 126.9827
     },
     {
       "id": "vr-arcade-hongdae",
@@ -239,8 +239,8 @@
       "uniqueToKorea": true,
       "status": "idea",
       "notes": "",
-      "lat": null,
-      "lng": null
+      "lat": 37.5572,
+      "lng": 126.9249
     },
     {
       "id": "noraebang-seoul",
@@ -365,8 +365,8 @@
       "uniqueToKorea": false,
       "status": "idea",
       "notes": "Evenings when dry.",
-      "lat": null,
-      "lng": null
+      "lat": 37.5285,
+      "lng": 126.9326
     },
     {
       "id": "banpo-rainbow-fountain",
@@ -473,8 +473,8 @@
       "uniqueToKorea": false,
       "status": "idea",
       "notes": "Design-led concept stores - the 'Brooklyn of Seoul'. Near Seoul Forest.",
-      "lat": null,
-      "lng": null
+      "lat": 37.5443,
+      "lng": 127.0557
     },
     {
       "id": "dept-store-beauty-halls",
@@ -509,8 +509,8 @@
       "uniqueToKorea": true,
       "status": "idea",
       "notes": "Museum-like artist exhibits + merch; dependable rainy filler. The Hyundai often has K-pop pop-ups.",
-      "lat": null,
-      "lng": null
+      "lat": 37.5296,
+      "lng": 126.9650
     },
     {
       "id": "yongsan-electronics",

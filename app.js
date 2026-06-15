@@ -15,15 +15,19 @@ let mapMarkersDrawn = false;
 // Accommodation bookings — hardcoded reference data, no localStorage needed.
 const STAYS = [
   { name: "ENA Suite Hotel Namdaemun", city: "Seoul", area: "Namdaemun",
-    checkIn: "2025-06-27", checkOut: "2025-07-02", lat: 37.5601, lng: 126.9755,
+    address: "36 Sejong-daero 11-gil, Jung-gu, Seoul",
+    checkIn: "2025-06-27", checkOut: "2025-07-02", lat: 37.5634, lng: 126.9752,
     note: "Luggage stays here while in Busan 30 Jun–2 Jul." },
-  { name: "Ocean The Point Hotel Busan", city: "Busan", area: "",
-    checkIn: "2025-06-30", checkOut: "2025-07-02", lat: 35.1587, lng: 129.1604,
+  { name: "Ocean The Point Hotel Busan", city: "Busan", area: "Gwangalli",
+    address: "42 Gwanganhaebyeon-ro 278beon-gil, Suyeong-gu, Busan",
+    checkIn: "2025-06-30", checkOut: "2025-07-02", lat: 35.1530, lng: 129.1186,
     note: "Busan side-trip — main bags left at ENA." },
   { name: "Gudo Collective Gangnam", city: "Seoul", area: "Gangnam",
-    checkIn: "2025-07-02", checkOut: "2025-07-09", lat: 37.4979, lng: 127.0276, note: "" },
-  { name: "Hotel The Designers Seoul Station", city: "Seoul", area: "Seoul Station",
-    checkIn: "2025-07-09", checkOut: "2025-07-15", lat: 37.5556, lng: 126.9706,
+    address: "11-3 Teheran-ro 8-gil, Gangnam-gu, Seoul",
+    checkIn: "2025-07-02", checkOut: "2025-07-09", lat: 37.4981, lng: 127.0289, note: "" },
+  { name: "Hotel The Designers Seoul Station", city: "Seoul", area: "Yongsan",
+    address: "305 Hangang-daero, Namyeong-dong, Yongsan-gu, Seoul",
+    checkIn: "2025-07-09", checkOut: "2025-07-15", lat: 37.5436, lng: 126.9709,
     note: "Raymond + Jacob fly home 9 Jul; Denise + Celine stay to 15 Jul." }
 ];
 
@@ -567,7 +571,7 @@ function drawMarkers() {
   STAYS.forEach(s => {
     if (typeof s.lat !== "number" || typeof s.lng !== "number") return;
     L.marker([s.lat, s.lng]).addTo(map).bindPopup(
-      `<div class="map-popup"><b>🏨 ${escapeHTML(s.name)}</b><br><small>${escapeHTML(s.city)}${s.area ? " · " + escapeHTML(s.area) : ""} · stay</small></div>`
+      `<div class="map-popup"><b>🏨 ${escapeHTML(s.name)}</b><br><small>${s.address ? escapeHTML(s.address) : escapeHTML(s.city)}</small></div>`
     );
   });
   mapMarkersDrawn = true;
@@ -773,6 +777,7 @@ function renderStaysSummary() {
         <div class="stay-main">
           <span class="stay-name">${escapeHTML(s.name)}</span>
           <span class="stay-city">${escapeHTML(s.city)}${s.area ? " · " + escapeHTML(s.area) : ""}</span>
+          ${s.address ? `<span class="stay-address">${escapeHTML(s.address)}</span>` : ""}
           ${s.note ? `<span class="stay-note">📝 ${escapeHTML(s.note)}</span>` : ""}
         </div>
         <span class="stay-dates">${fmt(s.checkIn)}–${fmt(s.checkOut)}</span>

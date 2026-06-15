@@ -499,6 +499,7 @@ body.rainy .app-header { background: linear-gradient(160deg, #16384a 0%, var(--b
 .stay-main { display: flex; flex-direction: column; gap: 2px; flex: 1; }
 .stay-name { font-weight: 600; font-size: 0.9rem; }
 .stay-city { color: var(--accent); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.stay-address { color: var(--muted); font-size: 0.75rem; }
 .stay-note { color: var(--accent-2); font-size: 0.78rem; }
 .stay-dates { color: var(--muted); font-size: 0.8rem; white-space: nowrap; }
 .day-stay { font-size: 0.78rem; color: var(--good); background: rgba(78,201,163,0.12); border-radius: 8px; padding: 4px 9px; margin: 6px 0 2px; display: inline-block; }

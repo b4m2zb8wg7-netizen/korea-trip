@@ -479,11 +479,18 @@ body.rainy .app-header { background: linear-gradient(160deg, #16384a 0%, var(--b
 .offline-dot.ready { background: var(--good); }
 
 /* ---------- Weather strip ---------- */
-.weather-strip { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.weather-strip { display: flex; flex-direction: column; gap: 4px; padding: 9px 16px; background: var(--surface); border-bottom: 1px solid var(--line); }
 .weather-strip[hidden] { display: none; }
-.weather-city { font-size: 0.85rem; }
+.weather-row { display: flex; align-items: center; gap: 12px; }
+.weather-today { font-size: 0.88rem; }
+.weather-tomorrow { font-size: 0.78rem; opacity: 0.65; }
+.weather-city { display: flex; align-items: center; gap: 5px; }
+.weather-city b { font-weight: 600; }
 .weather-city small { color: var(--muted); }
-.weather-rainy-cta { margin-left: auto; background: rgba(95,211,224,0.14); color: var(--rain); border: 1px solid var(--rain); border-radius: 999px; padding: 6px 12px; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
+.weather-city--dim { }
+.weather-divider { color: var(--line); font-size: 0.7rem; }
+.weather-tmr-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); min-width: 52px; }
+.weather-rainy-cta { align-self: flex-start; margin-top: 4px; background: rgba(95,211,224,0.14); color: var(--rain); border: 1px solid var(--rain); border-radius: 999px; padding: 5px 11px; font-size: 0.76rem; font-weight: 600; cursor: pointer; }
 
 /* ---------- Accommodation summary ---------- */
 .stays-summary { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px; }

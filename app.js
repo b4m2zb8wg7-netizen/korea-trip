@@ -695,16 +695,35 @@ async function loadWeather() {
   try {
     const results = await Promise.all(WEATHER_CITIES.map(async c => {
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lng}` +
-                  `&current=temperature_2m,weathercode,precipitation&timezone=Asia%2FSeoul`;
+                  `&current=temperature_2m,weathercode,precipitation` +
+                  `&daily=temperature_2m_max,weathercode&forecast_days=2&timezone=Asia%2FSeoul`;
       const res = await fetch(url, { cache: "no-store" });
       const data = await res.json();
       const cur = data.current || {};
-      return { name: c.name, temp: Math.round(cur.temperature_2m), info: weatherInfo(cur.weathercode) };
+      const daily = data.daily || {};
+      const tmrCode = daily.weathercode ? daily.weathercode[1] : null;
+      const tmrTemp = daily.temperature_2m_max ? Math.round(daily.temperature_2m_max[1]) : null;
+      return {
+        name: c.name,
+        temp: Math.round(cur.temperature_2m),
+        info: weatherInfo(cur.weathercode),
+        tmr: tmrCode != null ? { info: weatherInfo(tmrCode), temp: tmrTemp } : null
+      };
     }));
 
-    strip.innerHTML = results.map(r =>
-      `<span class="weather-city"><b>${escapeHTML(r.name)}</b> ${r.info.icon} ${r.temp}°C <small>${escapeHTML(r.info.label)}</small></span>`
-    ).join("");
+    strip.innerHTML = `
+      <div class="weather-row weather-today">
+        ${results.map(r =>
+          `<span class="weather-city"><b>${escapeHTML(r.name)}</b> ${r.info.icon} ${r.temp}°C <small>${escapeHTML(r.info.label)}</small></span>`
+        ).join('<span class="weather-divider">·</span>')}
+      </div>
+      <div class="weather-row weather-tomorrow">
+        <span class="weather-tmr-label">Tomorrow</span>
+        ${results.map(r => r.tmr
+          ? `<span class="weather-city weather-city--dim"><b>${escapeHTML(r.name)}</b> ${r.tmr.info.icon} ${r.tmr.temp}°C <small>${escapeHTML(r.tmr.info.label)}</small></span>`
+          : ""
+        ).join('<span class="weather-divider">·</span>')}
+      </div>`;
 
     const raining = results.some(r => r.info.rain);
     if (raining && !rainyOn()) {

@@ -568,17 +568,16 @@ function drawMarkers() {
     );
     plotted++;
   });
-  const redIcon = L.divIcon({
-    className: "",
-    html: '<div style="width:16px;height:16px;border-radius:50%;background:#e53e3e;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.5)"></div>',
-    iconSize: [16, 16],
-    iconAnchor: [8, 8],
-    popupAnchor: [0, -10]
-  });
-
   STAYS.forEach(s => {
     if (typeof s.lat !== "number" || typeof s.lng !== "number") return;
-    L.marker([s.lat, s.lng], { icon: redIcon }).addTo(map).bindPopup(
+    L.circleMarker([s.lat, s.lng], {
+      radius: 10,
+      fillColor: "#e53e3e",
+      color: "#fff",
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.9
+    }).addTo(map).bindPopup(
       `<div class="map-popup"><b>🏨 ${escapeHTML(s.name)}</b><br><small>${s.address ? escapeHTML(s.address) : escapeHTML(s.city)}</small></div>`
     );
   });

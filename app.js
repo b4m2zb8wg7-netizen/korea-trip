@@ -16,18 +16,18 @@ let mapMarkersDrawn = false;
 const STAYS = [
   { name: "ENA Suite Hotel Namdaemun", city: "Seoul", area: "Namdaemun",
     address: "36 Sejong-daero 11-gil, Jung-gu, Seoul",
-    checkIn: "2025-06-27", checkOut: "2025-07-02", lat: 37.5634, lng: 126.9752,
+    checkIn: "2026-06-27", checkOut: "2026-07-02", lat: 37.5634, lng: 126.9752,
     note: "Luggage stays here while in Busan 30 Jun–2 Jul." },
   { name: "Ocean The Point Hotel Busan", city: "Busan", area: "Gwangalli",
     address: "42 Gwanganhaebyeon-ro 278beon-gil, Suyeong-gu, Busan",
-    checkIn: "2025-06-30", checkOut: "2025-07-02", lat: 35.1530, lng: 129.1186,
+    checkIn: "2026-06-30", checkOut: "2026-07-02", lat: 35.1530, lng: 129.1186,
     note: "Busan side-trip — main bags left at ENA." },
   { name: "Gudo Collective Gangnam", city: "Seoul", area: "Gangnam",
     address: "11-3 Teheran-ro 8-gil, Gangnam-gu, Seoul",
-    checkIn: "2025-07-02", checkOut: "2025-07-09", lat: 37.4981, lng: 127.0289, note: "" },
+    checkIn: "2026-07-02", checkOut: "2026-07-09", lat: 37.4981, lng: 127.0289, note: "" },
   { name: "Hotel The Designers Seoul Station", city: "Seoul", area: "Yongsan",
     address: "305 Hangang-daero, Namyeong-dong, Yongsan-gu, Seoul",
-    checkIn: "2025-07-09", checkOut: "2025-07-15", lat: 37.5436, lng: 126.9709,
+    checkIn: "2026-07-09", checkOut: "2026-07-15", lat: 37.5436, lng: 126.9709,
     note: "Raymond + Jacob fly home 9 Jul; Denise + Celine stay to 15 Jul." }
 ];
 
@@ -189,7 +189,10 @@ async function init() {
     return;
   }
   if (!itinerary.days.length) { addDay(false); } // start with one empty day
-  if (!itinerary.startDate) { itinerary.startDate = "2025-06-27"; saveItinerary(); }
+  if (!itinerary.startDate) { itinerary.startDate = "2026-06-27"; saveItinerary(); }
+  // One-time migration: phones that saved the old 2025 default before the trip
+  // year was corrected get nudged forward to 2026 so day labels line up again.
+  else if (itinerary.startDate === "2025-06-27") { itinerary.startDate = "2026-06-27"; saveItinerary(); }
   wireTabs();
   wireFilters();
   wireRainy();
@@ -713,25 +716,28 @@ async function loadWeather() {
       const cur = data.current || {};
       const daily = data.daily || {};
       const tmrCode = daily.weathercode ? daily.weathercode[1] : null;
-      const tmrTemp = daily.temperature_2m_max ? Math.round(daily.temperature_2m_max[1]) : null;
+      const tmrRaw = daily.temperature_2m_max ? daily.temperature_2m_max[1] : null;
+      const tmrTemp = Number.isFinite(tmrRaw) ? Math.round(tmrRaw) : null;
+      // "—°C" if the API ever omits a reading, rather than the literal "NaN°C".
+      const degC = t => (t == null ? "—" : t) + "°C";
       return {
         name: c.name,
-        temp: Math.round(cur.temperature_2m),
+        temp: degC(Number.isFinite(cur.temperature_2m) ? Math.round(cur.temperature_2m) : null),
         info: weatherInfo(cur.weathercode),
-        tmr: tmrCode != null ? { info: weatherInfo(tmrCode), temp: tmrTemp } : null
+        tmr: tmrCode != null ? { info: weatherInfo(tmrCode), temp: degC(tmrTemp) } : null
       };
     }));
 
     strip.innerHTML = `
       <div class="weather-row weather-today">
         ${results.map(r =>
-          `<span class="weather-city"><b>${escapeHTML(r.name)}</b> ${r.info.icon} ${r.temp}°C <small>${escapeHTML(r.info.label)}</small></span>`
+          `<span class="weather-city"><b>${escapeHTML(r.name)}</b> ${r.info.icon} ${r.temp} <small>${escapeHTML(r.info.label)}</small></span>`
         ).join('<span class="weather-divider">·</span>')}
       </div>
       <div class="weather-row weather-tomorrow">
         <span class="weather-tmr-label">Tomorrow</span>
         ${results.map(r => r.tmr
-          ? `<span class="weather-city weather-city--dim"><b>${escapeHTML(r.name)}</b> ${r.tmr.info.icon} ${r.tmr.temp}°C <small>${escapeHTML(r.tmr.info.label)}</small></span>`
+          ? `<span class="weather-city weather-city--dim"><b>${escapeHTML(r.name)}</b> ${r.tmr.info.icon} ${r.tmr.temp} <small>${escapeHTML(r.tmr.info.label)}</small></span>`
           : ""
         ).join('<span class="weather-divider">·</span>')}
       </div>`;

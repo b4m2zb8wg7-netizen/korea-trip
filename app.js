@@ -11,6 +11,7 @@ let checked = loadSet(LS_CHECKED);
 let itinerary = loadItinerary();
 let map = null;                // Leaflet map, created lazily
 let mapMarkersDrawn = false;
+let activityLayer = null;       // LayerGroup holding activity pins (redrawn when bookmarks change)
 
 // Accommodation bookings — hardcoded reference data, no localStorage needed.
 const STAYS = [
@@ -310,6 +311,7 @@ function toggleBookmark(id) {
   else bookmarks.add(id);
   saveSet(LS_BOOKMARKS, bookmarks);
   renderList(); // refresh stars (and re-filter if "bookmarked" chip is active)
+  if (mapMarkersDrawn) refreshActivityMarkers(); // recolor pins if the map is already built
 }
 
 /* ---------- Booking checklist view ---------- */
@@ -545,6 +547,21 @@ function closePlanSheet() {
 }
 
 /* ---------- Map view (Leaflet, lazy-loaded) ---------- */
+// Standard Leaflet colored markers (the widely-used green/blue variants of
+// Leaflet's own pin). Bookmarked places get the green pin so they stand out.
+const MARKER_SHADOW = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png";
+function coloredIcon(color) {
+  return L.icon({
+    iconUrl: `https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-2x-${color}.png`,
+    shadowUrl: MARKER_SHADOW,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
+}
+let BOOKMARK_ICON;
+
 function showMap() {
   if (map) { map.invalidateSize(); return; }
   loadLeaflet().then(() => {
@@ -560,17 +577,29 @@ function showMap() {
   });
 }
 
-function drawMarkers() {
-  if (mapMarkersDrawn) return;
+// Draw (or redraw) just the activity pins. Called on first map open and again
+// whenever bookmarks change so green/blue pins stay in sync.
+function refreshActivityMarkers() {
+  if (!map) return;
+  if (!activityLayer) activityLayer = L.layerGroup().addTo(map);
+  else activityLayer.clearLayers();
   let plotted = 0;
   activities.forEach(a => {
     if (typeof a.lat !== "number" || typeof a.lng !== "number") return;
-    const star = bookmarks.has(a.id) ? "⭐ " : "";
-    L.marker([a.lat, a.lng]).addTo(map).bindPopup(
+    const isBookmarked = bookmarks.has(a.id);
+    const star = isBookmarked ? "⭐ " : "";
+    if (isBookmarked && !BOOKMARK_ICON) BOOKMARK_ICON = coloredIcon("green");
+    L.marker([a.lat, a.lng], isBookmarked ? { icon: BOOKMARK_ICON } : undefined).addTo(activityLayer).bindPopup(
       `<div class="map-popup"><b>${star}${escapeHTML(a.name)}</b><br><small>${escapeHTML(a.city)}${a.area ? " · " + escapeHTML(a.area) : ""}</small></div>`
     );
     plotted++;
   });
+  return plotted;
+}
+
+function drawMarkers() {
+  if (mapMarkersDrawn) return;
+  const plotted = refreshActivityMarkers();
   STAYS.forEach(s => {
     if (typeof s.lat !== "number" || typeof s.lng !== "number") return;
     L.circleMarker([s.lat, s.lng], {

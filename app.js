@@ -1051,9 +1051,20 @@ function wireSync() {
 
 /* ---------- Service worker (offline) ---------- */
 if ("serviceWorker" in navigator) {
+  // When a new service worker takes control, the page is still running the OLD
+  // app.js. Reload once so the fresh code (and new pins) actually take effect.
+  let reloadingForUpdate = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (reloadingForUpdate) return;
+    reloadingForUpdate = true;
+    window.location.reload();
+  });
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("sw.js", { updateViaCache: "none" })
-      .then(() => { document.getElementById("offlineDot").classList.add("ready"); })
+      .then(reg => {
+        document.getElementById("offlineDot").classList.add("ready");
+        reg.update(); // force an update check on every launch
+      })
       .catch(() => { /* offline just won't be available; app still works online */ });
   });
 }

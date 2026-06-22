@@ -603,24 +603,6 @@
       "lng": 127.2020
     },
     {
-      "id": "nami-petite-france",
-      "name": "Nami Island / Petite France / Garden of Morning Calm",
-      "city": "Day trip",
-      "area": "Gapyeong",
-      "categories": ["nature", "culture"],
-      "weatherProof": false,
-      "indoor": false,
-      "forWhom": ["family"],
-      "kidsNote": "",
-      "needsBooking": false,
-      "bookingLead": "none",
-      "uniqueToKorea": false,
-      "status": "idea",
-      "notes": "Lovely but heavily outdoor + long travel day; magic is muted in rain. Only if you luck into a clear day. Lower priority in peak jangma.",
-      "lat": 37.7902,
-      "lng": 127.5256
-    },
-    {
       "id": "lotte-world-busan",
       "name": "Lotte World Adventure Busan",
       "city": "Busan",
